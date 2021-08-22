@@ -1,0 +1,28 @@
+{
+  "name": "@gitops-toolbox/tpd-github",
+  "version": "0.0.1",
+  "description": "\"Persist templator output to github\"",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "tap"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gitops-toolbox/tpd-github.git"
+  },
+  "keywords": [
+    "templator",
+    "github",
+    "destination",
+    "persist"
+  ],
+  "author": "Luca Lanziani",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gitops-toolbox/tpd-github/issues"
+  },
+  "homepage": "https://github.com/gitops-toolbox/tpd-github#readme",
+  "devDependencies": {
+    "tap": "^15.0.9"
+  }
+}
