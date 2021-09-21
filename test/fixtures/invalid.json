@@ -1,0 +1,106 @@
+[
+  {
+    "template": null,
+    "contextSelector": "components.application",
+    "tags": { "type": "application" },
+    "renderedTemplate": "result",
+    "noDestination": {
+      "type": "tpd-github",
+      "params": {
+        "repo": "../",
+        "filepath": "folder/application.json"
+      }
+    }
+  },
+  {
+    "template": null,
+    "contextSelector": "components.application",
+    "tags": { "type": "application" },
+    "renderedTemplate": "result",
+    "destination": {
+      "noType": "tpd-github",
+      "params": {
+        "repo": "../",
+        "filepath": "folder/application.json"
+      }
+    }
+  },
+  {
+    "template": null,
+    "contextSelector": "components.application",
+    "tags": { "type": "application" },
+    "renderedTemplate": "result",
+    "destination": {
+      "type": "not-tpd-github",
+      "params": {
+        "repo": "../",
+        "filepath": "folder/application.json"
+      }
+    }
+  },
+  {
+    "template": null,
+    "contextSelector": "components.application",
+    "tags": { "type": "application" },
+    "renderedTemplate": "result",
+    "destination": {
+      "type": "tpd-github",
+      "noParams": {
+        "repo": "../",
+        "filepath": "folder/application.json"
+      }
+    }
+  },
+  {
+    "template": null,
+    "contextSelector": "components.application",
+    "tags": { "type": "application" },
+    "renderedTemplate": "result",
+    "destination": {
+      "type": "tpd-github",
+      "params": {
+        "norepo": "../",
+        "filepath": "folder/application.json"
+      }
+    }
+  },
+  {
+    "template": null,
+    "contextSelector": "components.application",
+    "tags": { "type": "application" },
+    "renderedTemplate": "result",
+    "destination": {
+      "type": "tpd-github",
+      "params": {
+        "repo": "../",
+        "noFilepath": "folder/application.json"
+      }
+    }
+  },
+  {
+    "noTemplate": null,
+    "contextSelector": "components.application",
+    "tags": { "type": "application" },
+    "renderedTemplate": "result",
+    "destination": {
+      "type": "tpd-github",
+      "params": {
+        "repo": "../",
+        "filepath": "folder/application.json"
+      }
+    }
+  },
+  {
+    "template": null,
+    "contextSelector": "components.application",
+    "tags": { "type": "application" },
+    "renderedTemplate": "result",
+    "destination": {
+      "type": "tpd-github",
+      "params": {
+        "repo": "../",
+        "filepath": "folder/application.json"
+      }
+    }
+  }
+]

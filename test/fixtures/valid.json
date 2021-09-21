@@ -1,0 +1,28 @@
+[
+  {
+    "template": null,
+    "contextSelector": "components.application",
+    "tags": { "type": "application" },
+    "renderedTemplate": "result",
+    "destination": {
+      "type": "tpd-github",
+      "params": {
+        "repo": "org1/repo1",
+        "filepath": "folder/application.json"
+      }
+    }
+  },
+  {
+    "template": null,
+    "contextSelector": "components.application",
+    "tags": { "type": "application" },
+    "renderedTemplate": "result",
+    "destination": {
+      "type": "tpd-github",
+      "params": {
+        "repo": "org1/repo1",
+        "filepath": "folder/application.json"
+      }
+    }
+  }
+]
