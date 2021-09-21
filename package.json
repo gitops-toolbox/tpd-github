@@ -24,5 +24,11 @@
   "homepage": "https://github.com/gitops-toolbox/tpd-github#readme",
   "devDependencies": {
     "tap": "^15.0.9"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "dependencies": {
+    "@gitops-toolbox/github-tools": "^0.2.0"
   }
 }
