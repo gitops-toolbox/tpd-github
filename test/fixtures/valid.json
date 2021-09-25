@@ -7,8 +7,8 @@
     "destination": {
       "type": "tpd-github",
       "params": {
-        "repo": "org1/repo1",
-        "filepath": "folder/application.json"
+        "repo": "LucaLanziani/giggi",
+        "filepath": "test.txt"
       }
     }
   },
@@ -20,7 +20,7 @@
     "destination": {
       "type": "tpd-github",
       "params": {
-        "repo": "org1/repo1",
+        "repo": "LucaLanziani/giggi",
         "filepath": "folder/application.json"
       }
     }
