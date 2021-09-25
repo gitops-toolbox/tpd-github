@@ -85,13 +85,14 @@ tap.test('When instatiating a new TpdGithub object', (t) => {
     const prs_by_repo = tpdGithub.prepare_prs(actions);
 
     t.strictSame(prs_by_repo, {
-      'org1/repo1': {
+      'LucaLanziani/giggi': {
         message: 'Generated from',
         branch:
-          'ci_a09f53d4a270c0f3e6d96a3db49ab51cd0a182ba33b92c455eaec5a8e368d5fa',
+          'ci_328a4a8e3fc13ab478b0836e7086122d497dee2fdc33f14d0d80ba0e7a0d6936',
         title: 'Generated from',
-        body: 'Delete:\n\tfolder/application.json\n\tfolder/application.json',
+        body: 'Delete:\ntest.txt\nfolder/application.json',
         changes: {
+          'test.txt': null,
           'folder/application.json': null,
         },
       },
