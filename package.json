@@ -1,6 +1,6 @@
 {
   "name": "@gitops-toolbox/tpd-github",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "\"Persist templator output to github\"",
   "main": "lib/index.js",
   "scripts": {
