@@ -14,16 +14,113 @@ const args = {
   interactive: false,
 };
 
-tap.test('When instatiating a new TpdGithub object', (t) => {
-  t.plan(7);
+function openPR(message, branch, title, body, changes) {
+  return {
+    get: () => {
+      return new Promise((resolve) => {
+        resolve({
+          html_url: {
+            message,
+            branch,
+            changes,
+            body,
+          },
+        });
+      });
+    },
+  };
+}
 
-  t.beforeEach((t) => {
-    t.context.repoStub = sinon.stub(Repo.prototype, 'openPR');
+tap.test('When opening a PR', (t) => {
+  t.plan(2);
+
+  t.afterEach((t) => {
+    sinon.restore();
+  });
+
+  t.test('Error should be returned if cannot open a PR', async (t) => {
     sinon.replace(
       TpdGithub.prototype,
       '_tryGetRepoInfo',
       sinon.fake.throws('Failing to simulate error in tests')
     );
+    sinon.replace(
+      Repo.prototype,
+      'openPR',
+      sinon.fake.throws('Failed to open PR')
+    );
+
+    const tpdGithub = new TpdGithub(
+      require('./fixtures/valid.json'),
+      logger,
+      args
+    );
+
+    const prs = await tpdGithub.persist();
+
+    t.strictSame(prs, {
+      'LucaLanziani/giggi': 'Failed to open PR',
+    });
+  });
+
+  t.test(
+    'If remote origin available should open pr with the repo reference',
+    async (t) => {
+      t.plan(4);
+      const repoInfos = [
+        'git@github.com:gitops-toolbox/templator.git',
+        '7654321',
+        'https://github.com/gitops-toolbox/templator.git',
+        '1234567',
+        'http://github.com/gitops-toolbox/templator.git',
+        '7890123',
+        'url/format/not/supported',
+        '123345345',
+      ];
+
+      const expected = 'Generated from gitops-toolbox/templator@';
+
+      sinon.replace(Repo.prototype, 'openPR', openPR);
+
+      sinon.stub(child_process, 'execSync').callsFake(() => {
+        return repoInfos.shift();
+      });
+
+      const tpdGithub = new TpdGithub(
+        require('./fixtures/valid.json'),
+        logger,
+        args
+      );
+
+      const git = await tpdGithub.persist();
+      const https = await tpdGithub.persist();
+      const http = await tpdGithub.persist();
+
+      const notSupported = await tpdGithub.persist();
+
+      t.same(http['LucaLanziani/giggi'].message, `${expected}7890123`);
+      t.same(https['LucaLanziani/giggi'].message, `${expected}1234567`);
+      t.same(git['LucaLanziani/giggi'].message, `${expected}7654321`);
+      t.same(
+        notSupported['LucaLanziani/giggi'].message,
+        `Generated with templator`
+      );
+    }
+  );
+});
+
+tap.test('When instatiating a new TpdGithub object', (t) => {
+  t.plan(5);
+
+  t.beforeEach((t) => {
+    sinon.replace(
+      TpdGithub.prototype,
+      '_tryGetRepoInfo',
+      sinon.fake.throws('Failing to simulate error in tests')
+    );
+
+    sinon.replace(Repo.prototype, 'openPR', openPR);
+
     t.context.original_log = console.log;
     console.log = debug;
     fs.mkdirSync(destination_path);
@@ -55,33 +152,71 @@ tap.test('When instatiating a new TpdGithub object', (t) => {
     }
   );
 
-  t.test('Will split actions per repos', async (t) => {
+  t.test('Will open a PR per repo', async (t) => {
     t.plan(1);
-
-    const actions = new TpdGithub(
-      require('./fixtures/templates.json'),
+    const fixture = require('./fixtures/templates.js');
+    const PRs = await new TpdGithub(
+      Object.values(fixture),
       logger,
       args
-    ).prepare_actions();
+    ).persist();
 
-    t.strictSame(actions, require('./fixtures/actions.js'));
+    t.strictSame(PRs, {
+      invalidTemplates: [
+        fixture['missing/template/deep/folder/multiple/levels/text.txt'],
+      ],
+    });
   });
 
   t.test('Will generate multiple Prs', async (t) => {
     t.plan(1);
+    const fixture = require('./fixtures/actions.js');
     const tpdGithub = new TpdGithub(
-      require('./fixtures/templates.json'),
+      Object.values(fixture).flat(),
       logger,
       args
     );
 
-    const actions = tpdGithub.prepare_actions();
-    const prs_by_repo = tpdGithub.preparePRs(actions);
+    const PRs = await tpdGithub.persist();
 
-    t.strictSame(prs_by_repo, require('./fixtures/prs_by_repo.js'));
+    t.strictSame(PRs, {
+      'org1/repo1': {
+        message: 'Generated with templator',
+        branch:
+          'ci_1c4652b83af0c32c9ba0377dbaaa96c026bf3d80f03ce68e1d6abfce52972002',
+        body: 'Generate:\nfile1.txt\nexistingDir/text.txt\n',
+        changes: {
+          'file1.txt': {
+            mode: 'normal',
+            content: 'test',
+          },
+          'existingDir/text.txt': {
+            mode: 'normal',
+            content: 'test',
+          },
+        },
+      },
+      'org2/repo1': {
+        message: 'Generated with templator',
+        branch:
+          'ci_ef1071136cffc393333da2c62665a779cbeeb7b7516220a908174012537424d2',
+        changes: {
+          'deep/folder/multiple/levels/text.txt': {
+            mode: 'normal',
+            content: 'test',
+          },
+          'deep/folder/multiple/levels/old.txt': null,
+        },
+        body: `Generate:
+deep/folder/multiple/levels/text.txt
+
+Delete:
+deep/folder/multiple/levels/old.txt`,
+      },
+    });
   });
 
-  t.test('Will a PR to delete files', async (t) => {
+  t.test('Will open a PR to delete files', async (t) => {
     t.plan(1);
     const tpdGithub = new TpdGithub(
       require('./fixtures/valid.json'),
@@ -89,15 +224,13 @@ tap.test('When instatiating a new TpdGithub object', (t) => {
       args
     );
 
-    const actions = tpdGithub.prepare_actions();
-    const prs_by_repo = tpdGithub.preparePRs(actions);
+    const prs = await tpdGithub.persist();
 
-    t.strictSame(prs_by_repo, {
+    t.strictSame(prs, {
       'LucaLanziani/giggi': {
         message: 'Generated with templator',
         branch:
           'ci_328a4a8e3fc13ab478b0836e7086122d497dee2fdc33f14d0d80ba0e7a0d6936',
-        title: 'Generated with templator',
         body: 'Delete:\ntest.txt\nfolder/application.json',
         changes: {
           'test.txt': null,
@@ -106,66 +239,4 @@ tap.test('When instatiating a new TpdGithub object', (t) => {
       },
     });
   });
-
-  t.test('Will try to open two prs', async (t) => {
-    t.plan(1);
-    const tpdGithub = new TpdGithub(
-      require('./fixtures/templates.json'),
-      logger,
-      args
-    );
-
-    await tpdGithub.persist();
-    t.ok(t.context.repoStub.withArgs({}).onFirstCall());
-  });
-
-  t.test(
-    'If remote origin available should open pr with the repo reference',
-    (t) => {
-      t.plan(8);
-      const repoInfos = [
-        'git@github.com:gitops-toolbox/templator.git',
-        '7654321',
-        'https://github.com/gitops-toolbox/templator.git',
-        '1234567',
-        'http://github.com/gitops-toolbox/templator.git',
-        '7890123',
-        'url/format/not/supported',
-        '123345345',
-      ];
-      const expected = 'Generated from gitops-toolbox/templator@';
-      sinon.restore();
-      sinon.stub(child_process, 'execSync').callsFake(() => {
-        return repoInfos.shift();
-      });
-      const tpdGithub = new TpdGithub(
-        require('./fixtures/valid.json'),
-        logger,
-        args
-      );
-
-      const git = tpdGithub.preparePRs(tpdGithub.prepare_actions())[
-        'LucaLanziani/giggi'
-      ];
-      const https = tpdGithub.preparePRs(tpdGithub.prepare_actions())[
-        'LucaLanziani/giggi'
-      ];
-      const http = tpdGithub.preparePRs(tpdGithub.prepare_actions())[
-        'LucaLanziani/giggi'
-      ];
-
-      const notSupported = tpdGithub.preparePRs(tpdGithub.prepare_actions())[
-        'LucaLanziani/giggi'
-      ];
-
-      t.same(http.message, `${expected}7890123`);
-      t.same(http.title, `${expected}7890123`);
-      t.same(https.message, `${expected}1234567`);
-      t.same(https.title, `${expected}1234567`);
-      t.same(git.message, `${expected}7654321`);
-      t.same(git.title, `${expected}7654321`);
-      t.same(notSupported.message, `Generated with templator`);
-      t.same(notSupported.title, `Generated with templator`);
-    }
-  );
 });
