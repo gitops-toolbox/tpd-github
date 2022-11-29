@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/gitops-toolbox/tpd-github#readme",
   "devDependencies": {
-    "sinon": "^14.0.0",
+    "sinon": "^15.0.0",
     "tap": "^16.2.0"
   },
   "engines": {
