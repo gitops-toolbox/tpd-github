@@ -24,7 +24,7 @@
   "homepage": "https://github.com/gitops-toolbox/tpd-github#readme",
   "devDependencies": {
     "sinon": "^15.0.1",
-    "tap": "^16.2.0"
+    "tap": "^18.3.0"
   },
   "engines": {
     "node": ">=14"
